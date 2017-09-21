@@ -1,77 +1,75 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta content="utf-8" http-equiv="encoding">
-	<title>Simple multiple file upload</title>
-	<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
-	<script>
-		$(function () {
-			$(':button').on('click', function() {
-		    	fileUpload();
-		    });
+	<head>
+		<meta content="utf-8" http-equiv="encoding">
+		<title>Simple multiple file upload</title>
+		<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+		<script>
+			$(function () {
+				$(':button').on('click', function() {
+			    	fileUpload();
+			    });
 
-		    $('.file').on('change', function () {
-		    	fileUpload();
-		    	filePreview(this.files);
-		    });
-		});
+			    $('.file').on('change', function () {
+			    	fileUpload();
+			    	filePreview(this.files);
+			    });
+			});
 
-		function fileUpload() {
-			 $.ajax({
-		        // Your server script to process the upload
-		        url: 'upload.php',
-		        type: 'POST',
+			function fileUpload() {
+				 $.ajax({
+			        // server script to process the upload
+			        url: 'upload.php',
+			        type: 'POST',
 
-		        // Form data
-		        data: new FormData($('form')[0]),
+			        data: new FormData($('form')[0]),
 
-		        // Tell jQuery not to process data or worry about content-type
-		        // You *must* include these options!
-		        cache: false,
-		        contentType: false,
-		        processData: false,
+			        // jQuery not to process data or worry about content-type
+			        // You *must* include these options!
+			        cache: false,
+			        contentType: false,
+			        processData: false,
 
-		        // Custom XMLHttpRequest
-		        xhr: function() {
-		            var myXhr = $.ajaxSettings.xhr();
-		            if (myXhr.upload) {
-		                // For handling the progress of the upload
-		                myXhr.upload.addEventListener('progress', function(e) {
-		                    if (e.lengthComputable) {
-		                        $('progress').attr({
-		                            value: e.loaded,
-		                            max: e.total,
-		                        });
-		                    }
-		                } , false);
-		            }
-		            return myXhr;
-		        },
-		    });
-		}
+			        // Custom XMLHttpRequest
+			        xhr: function() {
+			            var myXhr = $.ajaxSettings.xhr();
+			            if (myXhr.upload) {
+			                // For handling the progress of the upload
+			                myXhr.upload.addEventListener('progress', function(e) {
+			                    if (e.lengthComputable) {
+			                        $('progress').attr({
+			                            value: e.loaded,
+			                            max: e.total,
+			                        });
+			                    }
+			                } , false);
+			            }
+			            return myXhr;
+			        },
+			    });
+			}
 
-		function filePreview(files) {
-			console.log(files)
-		  for (var i = 0; i < files.length; i++) {
-		    var file = files[i];
-		    var objectURL = window.URL.createObjectURL(file);
-		    var img = $('<img id="dynamic" style="width: 150px; height: 150px;">'); //Equivalent: $(document.createElement('img'))
-			img.attr('src', objectURL);
-			img.appendTo('#preview');
-		    // $('#preview img').attr('src', objectURL);
-		    console.log(objectURL);
-		  }
-		}
-	</script>
-</head>
-<body>
-	<form enctype="multipart/form-data">
-	    <input name="file[]" type="file" class="file" /><br />
-	    <input name="file[]" type="file" class="file" /><br />
-	    <input name="file[]" type="file" class="file" /><br /><br />
-	    <input type="button" value="Upload" />
-	</form>
-	<progress></progress>
-	<div id="preview"></div>
+			function filePreview(files) {
+				console.log(files)
+			  for (var i = 0; i < files.length; i++) {
+			    var file = files[i];
+			    var objectURL = window.URL.createObjectURL(file);
+			    var img = $('<img id="dynamic" style="width: 150px; height: 150px;">'); //Equivalent: $(document.createElement('img'))
+				img.attr('src', objectURL);
+				img.appendTo('#preview');
+			    console.log(objectURL);
+			  }
+			}
+		</script>
+	</head>
+	<body>
+		<form enctype="multipart/form-data">
+		    <input name="file[]" type="file" class="file" /><br />
+		    <input name="file[]" type="file" class="file" /><br />
+		    <input name="file[]" type="file" class="file" /><br /><br />
+		    <input type="button" value="Upload" />
+		</form>
+		<progress></progress>
+		<div id="preview"></div>
 </body>
 </html>
