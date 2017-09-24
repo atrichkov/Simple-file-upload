@@ -1,67 +1,69 @@
 <?php
 
-var_dump(count($_FILES['file']['tmp_name']));
-var_dump($_FILES['file']);
-// var_Dump($_FILES['file']['tmp_name']);
+class Upload {
+    private $fileName;
+    private $fileSize;
+    private $fileTmp;
+    private $fileType;
+    private $maxSize = 5000; // maximum image size in kb(kilo byte);
+    public $errorMsg = array();
 
-for ($i = 0; $i <= count($_FILES['file']['tmp_name']); $i++) {
-	if ($_FILES['file']['tmp_name'][$i]) {
-		move_uploaded_file($_FILES['file']['tmp_name'][$i], "uploads/" . $_FILES['file']['name'][$i]);	
-	}
+    function __construct() {
+        for ($i = 0; $i <= count($_FILES['file']['tmp_name']); $i++) {
+            $this->setImage($i);
+            $this->validate();
+            if ($this->errorMsg[$i]) {
+                echo $this->errorMsg[$i];
+                continue;
+            }
+            move_uploaded_file($_FILES['file']['tmp_name'][$i], "uploads/" . $_FILES['file']['name'][$i]);
+        }
+    }
+
+    /**
+     * set the input image name what was used in input field
+     *
+     * @param integer $key
+     */
+    function setImage($key) {
+        $this->fileName = $_FILES['file']['name'][$key];
+        $this->fileSize = $_FILES['file']['size'][$key];
+        $this->fileTmp = $_FILES['file']['tmp_name'][$key];
+        $this->fileType = $_FILES['file']['type'][$key];
+    }
+
+    public function validate() {
+        $this->checkExt();
+        $this->checkSize();
+    }
+
+    /**
+     * Check the input image size with max image size
+     *
+     * @return boolean
+     */
+    function checkSize() {
+        if ($this->fileSize > ($this->maxSize * 1024))
+            $this->errorMsg[] = 'File size is Big';
+        else
+            return true;
+    }
+
+    /**
+     * checks image extension
+     *
+     * @return boolean
+     */
+    function checkExt() {
+        if (($this->fileType != 'image/jpg') && ($this->fileType != 'image/jpeg') &&
+                ($this->fileType != 'image/gif') && ($this->fileType != 'image/png')) {
+            echo $this->fileName;
+            $this->errorMsg[] = 'File ext is not supported';
+        } else {
+            return true;
+        }
+    }
+
 }
 
-
-
-exit;
-if (isset($_FILES['myFile'])) {
-    // Example:
-    move_uploaded_file($_FILES['myFile']['tmp_name'], "uploads/" . $_FILES['myFile']['name']);
-    exit;
-}
-?><!DOCTYPE html>
-<html>
-<head>
-    <title>dnd binary upload</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <script type="application/javascript">
-        function sendFile(file) {
-            var uri = "/index.php";
-            var xhr = new XMLHttpRequest();
-            var fd = new FormData();
-            
-            xhr.open("POST", uri, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    alert(xhr.responseText); // handle response.
-                }
-            };
-            fd.append('myFile', file);
-            // Initiate a multipart/form-data upload
-            xhr.send(fd);
-        }
-
-        window.onload = function() {
-            var dropzone = document.getElementById("dropzone");
-            dropzone.ondragover = dropzone.ondragenter = function(event) {
-                event.stopPropagation();
-                event.preventDefault();
-            }
-    
-            dropzone.ondrop = function(event) {
-                event.stopPropagation();
-                event.preventDefault();
-
-                var filesArray = event.dataTransfer.files;
-                for (var i=0; i<filesArray.length; i++) {
-                    sendFile(filesArray[i]);
-                }
-            }
-        }
-    </script>
-</head>
-<body>
-    <div>
-        <div id="dropzone" style="margin:30px; width:500px; height:300px; border:1px dotted grey;">Drag & drop your file here...</div>
-    </div>
-</body>
-</html>
+$upload = new Upload();
